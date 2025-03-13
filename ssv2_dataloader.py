@@ -26,233 +26,6 @@ import pandas as pd
 
 import re
 
-def parse_class_labels(text_content):
-    """
-    Parse the class labels and their counts from the provided text content.
-    
-    Args:
-        text_content (str): The text containing class labels and their counts
-        
-    Returns:
-        dict: A dictionary mapping class index to class name
-        dict: A dictionary mapping class name to count
-    """
-    # Regular expression to match a class name followed by a number
-    pattern = r'(.*?)\s+(\d+)$'
-    
-    lines = text_content.strip().split('\n')
-    
-    class_dict = {}
-    count_dict = {}
-    
-    class_idx = 0
-    for line in lines:
-        line = line.strip()
-        if not line:
-            continue
-            
-        match = re.match(pattern, line)
-        if match:
-            class_name = match.group(1).strip()
-            count = int(match.group(2))
-            
-            class_dict[class_idx] = class_name
-            count_dict[class_name] = count
-            
-            class_idx += 1
-    
-    return class_dict, count_dict
-
-
-def extract_class_mapping():
-    """
-    Extract the class mapping from the dataset instructions.
-    
-    This function contains the hardcoded text from the dataset instructions.
-    It's better to load from a file, but this is a fallback.
-    
-    Returns:
-        dict: A dictionary mapping class index to class name
-    """
-    # Text containing the class names and counts
-    class_text = """Unfolding something 1266
-Pushing something from left to right 3442
-Attaching something to something 1227
-Something falling like a rock 2079
-Something falling like a feather or paper 1858
-Bending something so that it deforms 798
-Pretending to poke something 754
-Pulling something from left to right 1908
-Pretending to put something onto something 740
-Scooping something up with something 1123
-Putting something next to something 2431
-Poking a stack of something so the stack collapses 367
-Showing something next to something 1185
-Poking something so that it falls over 892
-Pouring something onto something 403
-Putting something and something on the table 1353
-Bending something until it breaks 718
-Putting something underneath something 748
-Squeezing something 2631
-Trying to bend something unbendable so nothing happens 991
-Digging something out of something 522
-Moving part of something 905
-Moving something towards the camera 994
-Dropping something behind something 991
-Holding something in front of something 2203
-Something colliding with something and both come to a halt 547
-Spilling something onto something 474
-Pretending to put something on a surface 1644
-Pretending to throw something 1019
-Sprinkling something onto something 540
-Tilting something with something on it until it falls off 1272
-Pulling something onto something 343
-Pulling something from right to left 1886
-Pulling two ends of something but nothing happens 643
-Turning the camera upwards while filming something 1021
-Pretending to sprinkle air onto something 543
-Poking something so lightly that it doesn't or almost doesn't move 2430
-Poking a hole into something soft 258
-Pretending to take something out of something 1045
-Moving something and something closer to each other 2298
-Putting something that can't roll onto a slanted surface, so it slides down 442
-Putting something that cannot actually stand upright upright on the table, so it falls on its side 837
-Moving something and something so they pass each other 582
-Moving something up 3750
-Moving something across a surface without it falling down 832
-Moving something down 3242
-Pulling two ends of something so that it gets stretched 438
-Letting something roll down a slanted surface 876
-Pretending to put something behind something 746
-Pushing something so that it slightly moves 2418
-Dropping something onto something 1623
-Throwing something in the air and catching it 1177
-Putting something onto a slanted surface but it doesn't glide down 183
-Putting something on a flat surface without letting it roll 553
-Moving away from something with your camera 1199
-Putting something in front of something 1094
-Pushing something from right to left 3195
-Turning the camera left while filming something 1239
-Putting something onto something else that cannot support it so it falls down 442
-Pushing something so it spins 845
-Tipping something with something in it over, so something in it falls out 447
-Showing something behind something 2315
-Putting something on a surface 4081
-Pulling something from behind of something 586
-Touching (without moving) part of something 1763
-Laying something on the table on its side, not upright 950
-Putting number of something onto something 1180
-Turning the camera downwards while filming something 976
-Taking something from somewhere 1290
-Lifting something up completely, then letting it drop down 1851
-Pretending to scoop something up with something 389
-Dropping something next to something 1232
-Twisting something 1131
-Throwing something onto a surface 1035
-Pretending to turn something upside down 888
-Holding something behind something 1374
-Moving something closer to something 1426
-Moving something and something so they collide with each other 577
-Putting something into something 2783
-Putting something upright on the table 980
-Dropping something in front of something 1131
-Picking something up 1456
-Pouring something into something until it overflows 352
-Pushing something onto something 419
-Pretending to open something without actually opening it 1911
-Pretending to put something underneath something 373
-Pulling something out of something 736
-Showing a photo of something to the camera 916
-Holding something next to something 1893
-Putting something behind something 1428
-Lifting a surface with something on it until it starts sliding down 405
-Plugging something into something but pulling it right out as you remove your hand 1176
-Moving something across a surface until it falls down 883
-Failing to put something into something because something does not fit 353
-Poking something so that it spins around 185
-Pouring something into something 1530
-Showing that something is empty 2209
-Lifting up one end of something without letting it drop down 1613
-Pretending to squeeze something 856
-Throwing something 2626
-Pushing something so that it falls off the table 2240
-Pretending or trying and failing to twist something 404
-Pretending to put something next to something 1297
-Wiping something off of something 873
-Pushing something off of something 687
-Pushing something with something 1804
-Letting something roll along a flat surface 1163
-Pretending to pick something up 1969
-Pretending or failing to wipe something off of something 490
-Showing that something is inside something 1547
-Removing something, revealing something behind 1069
-Letting something roll up a slanted surface, so it rolls back down 441
-Moving something and something away from each other 2062
-Putting something onto something 1850
-Pretending to close something without actually closing it 1122
-Tearing something just a little bit 2025
-Showing something on top of something 1301
-Something being deflected from something 492
-Covering something with something 3530
-Moving something away from the camera 986
-Trying but failing to attach something to something because it doesn't stick 660
-Putting something on the edge of something so it is not supported and falls down 638
-Spilling something behind something 143
-Holding something over something 1804
-Twisting (wringing) something wet until water comes out 408
-Taking something out of something 2259
-Piling something up 1145
-Opening something 1869
-Trying to pour something into something, but missing so it spills next to it 265
-Lifting up one end of something, then letting it drop down 1850
-Spinning something so it continues spinning 1168
-Spreading something onto something 535
-Poking a hole into some substance 115
-Stacking number of something 1463
-Poking a stack of something without the stack collapsing 276
-Pretending to spread air onto something 225
-Uncovering something 3004
-Spinning something that quickly stops spinning 1587
-Pretending to be tearing something that is not tearable 1256
-Putting something similar to other things that are already on the table 2339
-Rolling something on a flat surface 1773
-Pretending to take something from somewhere 1437
-Taking one of many similar things on the table 2969
-Holding something 1851
-Folding something 1542
-Throwing something against something 1475
-Throwing something in the air and letting it fall 1038
-Pretending to put something into something 1165
-Showing something to the camera 1061
-Something colliding with something and both are being deflected 653
-Putting something, something and something on the table 1211
-Plugging something into something 2252
-Lifting something up completely without letting it drop down 1906
-Moving something away from something 1352
-Tipping something over 896
-Pretending to pour something out of something, but something is empty 445
-Turning the camera right while filming something 1239
-Turning something upside down 2943
-Pulling two ends of something so that it separates into two pieces 313
-Tilting something with something on it slightly so it doesn't fall down 829
-Hitting something with something 2234
-Lifting a surface with something on it but not enough for it to slide down 268
-Approaching something with your camera 1349
-Closing something 1482
-Lifting something with something on it 2016
-Putting something that can't roll onto a slanted surface, so it stays where it is 447
-Spilling something next to something 240
-Pouring something out of something 514
-Poking something so it slightly moves 1599
-Tearing something into two pieces 2849
-Pushing something so that it almost falls off but doesn't 1321
-Burying something in something 687
-Stuffing something into something 1998
-Dropping something into something 1222"""
-
-    class_dict, count_dict = parse_class_labels(class_text)
-    return class_dict, count_dict
-    
 import os
 import json
 import torch
@@ -284,7 +57,7 @@ def parse_class_labels(text_content):
         dict: A dictionary mapping class index to class name
         dict: A dictionary mapping class name to count
     """
-    # Regular expression to match a class name followed by a number
+    # Regular expression to match a assass name followed by a number
     pattern = r'(.*?)\s+(\d+)$'
     
     lines = text_content.strip().split('\n')
@@ -414,19 +187,185 @@ class SSv2Dataset(Dataset):
         print(f"Using numbered directories: {has_numbered_dirs}")
         
     def _load_class_labels(self):
-        """Load class labels for the dataset."""
-        try:
-            # Try to load classes using the parser
-            class_dict, _ = extract_class_mapping()
-            return class_dict
-        except Exception as e:
-            print(f"Warning: Could not load class labels: {e}")
-            # Fallback to a minimal set of classes
-            return {
-                0: "Unfolding something",
-                1: "Pushing something from left to right",
-                # Add more as needed
-            }
+        labels = action_dict_flipped = {
+    "0": "Approaching something with your camera",
+    "1": "Attaching something to something",
+    "2": "Bending something so that it deforms",
+    "3": "Bending something until it breaks",
+    "4": "Burying something in something",
+    "5": "Closing something",
+    "6": "Covering something with something",
+    "7": "Digging something out of something",
+    "8": "Dropping something behind something",
+    "9": "Dropping something in front of something",
+    "10": "Dropping something into something",
+    "11": "Dropping something next to something",
+    "12": "Dropping something onto something",
+    "13": "Failing to put something into something because something does not fit",
+    "14": "Folding something",
+    "15": "Hitting something with something",
+    "16": "Holding something",
+    "17": "Holding something behind something",
+    "18": "Holding something in front of something",
+    "19": "Holding something next to something",
+    "20": "Holding something over something",
+    "21": "Laying something on the table on its side, not upright",
+    "22": "Letting something roll along a flat surface",
+    "23": "Letting something roll down a slanted surface",
+    "24": "Letting something roll up a slanted surface, so it rolls back down",
+    "25": "Lifting a surface with something on it but not enough for it to slide down",
+    "26": "Lifting a surface with something on it until it starts sliding down",
+    "27": "Lifting something up completely without letting it drop down",
+    "28": "Lifting something up completely, then letting it drop down",
+    "29": "Lifting something with something on it",
+    "30": "Lifting up one end of something without letting it drop down",
+    "31": "Lifting up one end of something, then letting it drop down",
+    "32": "Moving away from something with your camera",
+    "33": "Moving part of something",
+    "34": "Moving something across a surface until it falls down",
+    "35": "Moving something across a surface without it falling down",
+    "36": "Moving something and something away from each other",
+    "37": "Moving something and something closer to each other",
+    "38": "Moving something and something so they collide with each other",
+    "39": "Moving something and something so they pass each other",
+    "40": "Moving something away from something",
+    "41": "Moving something away from the camera",
+    "42": "Moving something closer to something",
+    "43": "Moving something down",
+    "44": "Moving something towards the camera",
+    "45": "Moving something up",
+    "46": "Opening something",
+    "47": "Picking something up",
+    "48": "Piling something up",
+    "49": "Plugging something into something",
+    "50": "Plugging something into something but pulling it right out as you remove your hand",
+    "51": "Poking a hole into some substance",
+    "52": "Poking a hole into something soft",
+    "53": "Poking a stack of something so the stack collapses",
+    "54": "Poking a stack of something without the stack collapsing",
+    "55": "Poking something so it slightly moves",
+    "56": "Poking something so lightly that it doesn't or almost doesn't move",
+    "57": "Poking something so that it falls over",
+    "58": "Poking something so that it spins around",
+    "59": "Pouring something into something",
+    "60": "Pouring something into something until it overflows",
+    "61": "Pouring something onto something",
+    "62": "Pouring something out of something",
+    "63": "Pretending or failing to wipe something off of something",
+    "64": "Pretending or trying and failing to twist something",
+    "65": "Pretending to be tearing something that is not tearable",
+    "66": "Pretending to close something without actually closing it",
+    "67": "Pretending to open something without actually opening it",
+    "68": "Pretending to pick something up",
+    "69": "Pretending to poke something",
+    "70": "Pretending to pour something out of something, but something is empty",
+    "71": "Pretending to put something behind something",
+    "72": "Pretending to put something into something",
+    "73": "Pretending to put something next to something",
+    "74": "Pretending to put something on a surface",
+    "75": "Pretending to put something onto something",
+    "76": "Pretending to put something underneath something",
+    "77": "Pretending to scoop something up with something",
+    "78": "Pretending to spread air onto something",
+    "79": "Pretending to sprinkle air onto something",
+    "80": "Pretending to squeeze something",
+    "81": "Pretending to take something from somewhere",
+    "82": "Pretending to take something out of something",
+    "83": "Pretending to throw something",
+    "84": "Pretending to turn something upside down",
+    "85": "Pulling something from behind of something",
+    "86": "Pulling something from left to right",
+    "87": "Pulling something from right to left",
+    "88": "Pulling something onto something",
+    "89": "Pulling something out of something",
+    "90": "Pulling two ends of something but nothing happens",
+    "91": "Pulling two ends of something so that it gets stretched",
+    "92": "Pulling two ends of something so that it separates into two pieces",
+    "93": "Pushing something from left to right",
+    "94": "Pushing something from right to left",
+    "95": "Pushing something off of something",
+    "96": "Pushing something onto something",
+    "97": "Pushing something so it spins",
+    "98": "Pushing something so that it almost falls off but doesn't",
+    "99": "Pushing something so that it falls off the table",
+    "100": "Pushing something so that it slightly moves",
+    "101": "Pushing something with something",
+    "102": "Putting number of something onto something",
+    "103": "Putting something and something on the table",
+    "104": "Putting something behind something",
+    "105": "Putting something in front of something",
+    "106": "Putting something into something",
+    "107": "Putting something next to something",
+    "108": "Putting something on a flat surface without letting it roll",
+    "109": "Putting something on a surface",
+    "110": "Putting something on the edge of something so it is not supported and falls down",
+    "111": "Putting something onto a slanted surface but it doesn't glide down",
+    "112": "Putting something onto something",
+    "113": "Putting something onto something else that cannot support it so it falls down",
+    "114": "Putting something similar to other things that are already on the table",
+    "115": "Putting something that can't roll onto a slanted surface, so it slides down",
+    "116": "Putting something that can't roll onto a slanted surface, so it stays where it is",
+    "117": "Putting something that cannot actually stand upright upright on the table, so it falls on its side",
+    "118": "Putting something underneath something",
+    "119": "Putting something upright on the table",
+    "120": "Putting something, something and something on the table",
+    "121": "Removing something, revealing something behind",
+    "122": "Rolling something on a flat surface",
+    "123": "Scooping something up with something",
+    "124": "Showing a photo of something to the camera",
+    "125": "Showing something behind something",
+    "126": "Showing something next to something",
+    "127": "Showing something on top of something",
+    "128": "Showing something to the camera",
+    "129": "Showing that something is empty",
+    "130": "Showing that something is inside something",
+    "131": "Something being deflected from something",
+    "132": "Something colliding with something and both are being deflected",
+    "133": "Something colliding with something and both come to a halt",
+    "134": "Something falling like a feather or paper",
+    "135": "Something falling like a rock",
+    "136": "Spilling something behind something",
+    "137": "Spilling something next to something",
+    "138": "Spilling something onto something",
+    "139": "Spinning something so it continues spinning",
+    "140": "Spinning something that quickly stops spinning",
+    "141": "Spreading something onto something",
+    "142": "Sprinkling something onto something",
+    "143": "Squeezing something",
+    "144": "Stacking number of something",
+    "145": "Stuffing something into something",
+    "146": "Taking one of many similar things on the table",
+    "147": "Taking something from somewhere",
+    "148": "Taking something out of something",
+    "149": "Tearing something into two pieces",
+    "150": "Tearing something just a little bit",
+    "151": "Throwing something",
+    "152": "Throwing something against something",
+    "153": "Throwing something in the air and catching it",
+    "154": "Throwing something in the air and letting it fall",
+    "155": "Throwing something onto a surface",
+    "156": "Tilting something with something on it slightly so it doesn't fall down",
+    "157": "Tilting something with something on it until it falls off",
+    "158": "Tipping something over",
+    "159": "Tipping something with something in it over, so something in it falls out",
+    "160": "Touching (without moving) part of something",
+    "161": "Trying but failing to attach something to something because it doesn't stick",
+    "162": "Trying to bend something unbendable so nothing happens",
+    "163": "Trying to pour something into something, but missing so it spills next to it",
+    "164": "Turning something upside down",
+    "165": "Turning the camera downwards while filming something",
+    "166": "Turning the camera left while filming something",
+    "167": "Turning the camera right while filming something",
+    "168": "Turning the camera upwards while filming something",
+    "169": "Twisting (wringing) something wet until water comes out",
+    "170": "Twisting something",
+    "171": "Uncovering something",
+    "172": "Unfolding something",
+    "173": "Wiping something off of something"
+
+
+        }
+        return labels
     
     def __len__(self):
         return len(self.annotations)
@@ -778,7 +717,7 @@ if __name__ == '__main__':
     # Paths
     root_dir = '/network/scratch/s/sonia.joseph/datasets/ssv2/somethingsomething_v2/unzipped/20bn-something-something-v2'
     train_annotation = '/network/scratch/s/sonia.joseph/datasets/ssv2/somethingsomething_v2/unzipped/labels/train.json'
-    val_annotation = '/network/scratch/s/sonia.joseph/datasets/ssv2/somethingsomething_v2/unzipped/labels/validation.json'
+    # val_annotation = '/network/scratch/s/sonia.joseph/datasets/ssv2/somethingsomething_v2/unzipped/labels/validation.json'
     val_annotation = 'valid_videos.json'
     
     # # Create dataloaders

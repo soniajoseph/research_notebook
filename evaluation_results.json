@@ -1,8 +1,8 @@
 {
   "top_1_acc": 0.0,
-  "top_5_acc": 0.0,
-  "avg_batch_time": 0.4372306863466899,
-  "fps": 36.59395486096611,
+  "top_5_acc": 1.5625,
+  "avg_batch_time": 0.4597575267155965,
+  "fps": 34.80095282898438,
   "per_class_acc": {
     "spinning cube that quickly stops spinning": 0.0,
     "showing clay box on top of wallet": 0.0,

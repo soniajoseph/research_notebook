@@ -69,6 +69,8 @@ def evaluate_model(model, dataloader, device, probe, top_k=(1, 5)):
             features = model(frames)
             outputs = probe(features)
 
+            print("output shape:", outputs.shape)
+
             
             
             # Record batch processing time
@@ -77,10 +79,11 @@ def evaluate_model(model, dataloader, device, probe, top_k=(1, 5)):
             
             # For top-k calculation
             _, pred_indices = outputs.topk(max_k, dim=1)
-            print("correct:", pred_indices)
-            print("labels:", labels)
+            print("predictions shape:", pred_indices)
+            print("labels shape:", labels)
+
             correct = pred_indices.eq(labels.view(-1, 1).expand_as(pred_indices))
-    
+
             
             # Store predictions and labels
             all_preds.append(pred_indices.cpu())
@@ -177,7 +180,7 @@ def load_attentive_probe(encoder, probe_path):
 
     print(f"Embed dim: {embed_dim}, Num heads: {num_heads}")
 
-    classifier = AttentiveClassifier(embed_dim= embed_dim ,num_heads = num_heads, depth=1, num_classes=1000).to(DEVICE)
+    classifier = AttentiveClassifier(embed_dim= embed_dim ,num_heads = num_heads, depth=1, num_classes=174).to(DEVICE)
 
 
     classifier.load_state_dict(new_state_dict, strict=True)
@@ -224,7 +227,7 @@ def main():
     args = parser.parse_args()
 
     classifier_model_library = { # model_name: (model_path, probe_path)
-    'vjepa_v1_vit_large_patch16': ('/network/scratch/s/sonia.joseph/jepa_models/github_models/vit-l-16/vitl16.pth.tar', '/network/scratch/s/sonia.joseph/jepa_models/github_models/vit-l-16/probes/in1k-probe.pth.tar.1'),
+    'vjepa_v1_vit_large_patch16': ('/network/scratch/s/sonia.joseph/jepa_models/github_models/vit-l-16/vitl16.pth.tar', '/network/scratch/s/sonia.joseph/jepa_models/github_models/vit-l-16/probes/ssv2-probe.pth.tar'),
     'vjepa_v1_vit_huge_patch16': ('/network/scratch/s/sonia.joseph/jepa_models/github_models/vit-h-16/vith16.pth.tar', '/network/scratch/s/sonia.joseph/jepa_models/github_models/vit-h-16/probes/in1k-probe.pth.tar')
 
 }
